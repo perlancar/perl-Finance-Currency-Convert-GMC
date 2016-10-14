@@ -146,17 +146,17 @@ sub convert_currency {
 
     $which //= 'sell';
 
+    if (uc($to) ne 'IDR') {
+        die "Currently only conversion to IDR is supported".
+            " (you asked for conversion to '$to')\n";
+    }
+
     unless ($_get_res) {
         $_get_res = get_currencies();
         unless ($_get_res->[0] == 200) {
             warn "Can't get currencies: $_get_res->[0] - $_get_res->[1]\n";
             return undef;
         }
-    }
-
-    if (uc($to) ne 'IDR') {
-        die "Currently only conversion to IDR is supported".
-            " (you asked for conversion to '$to')\n";
     }
 
     my $c = $_get_res->[2]{currencies}{uc $from} or return undef;
