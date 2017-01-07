@@ -1,5 +1,3 @@
-Revision history for Finance-Currency-Convert-GMC
-
 0.002   2016-10-14 (PERLANCAR)
 
 	- [ux] Bail earlier when to is not 'IDR' before actually retrieving
