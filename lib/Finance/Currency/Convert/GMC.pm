@@ -6,7 +6,7 @@ package Finance::Currency::Convert::GMC;
 use 5.010001;
 use strict;
 use warnings;
-use Log::Any::IfLOG '$log';
+use Log::ger;
 
 use Exporter 'import';
 our @EXPORT_OK = qw(get_currencies convert_currency);
