@@ -46,8 +46,10 @@ _
 };
 sub get_currencies {
     require Mojo::DOM;
+    require Parse::Date::Month::ID;
     #require Parse::Number::ID;
     require Parse::Number::EN;
+    require Time::Local;
 
     my %args = @_;
 
@@ -90,8 +92,34 @@ sub get_currencies {
         return [543, "Check: no/too few currencies found"];
     }
 
+    my $mtime;
+  GET_MTIME: {
+        unless ($page =~ m!</table>\s*<br>\s*<a>((\d+)-(\w+) (\d+):(\d+))</a>!s) {
+            log_warn "Cannot extract last update time";
+            last;
+        }
+        my $mon = Parse::Date::Month::ID::parse_date_month_id(text=>$3) or do {
+            log_warn "Cannot recognize month name '$3' in last update time '$1'";
+            last;
+        };
+        my $now = time();
+        my $year = (localtime $now)[5];
+        # the web page doesn't show year, pick year that will result in nearest
+        # time to current time
+        my $time1 = Time::Local::timegm(0, $5, $4, $2, $mon-1, $year  ) - 7*3600;
+        my $time2 = Time::Local::timegm(0, $5, $4, $2, $mon-1, $year-1) - 7*3600;
+        if (abs($time1 - $now) < abs($time2 - $now)) {
+            $mtime = $time1;
+        } else {
+            $mtime = $time2;
+        }
+    }
+
     # XXX parse update dates (mtime_er, mtime_ttc, mtime_bn)
-    [200, "OK", {currencies=>\%currencies}];
+    [200, "OK", {
+        mtime => $mtime,
+        currencies => \%currencies,
+    }];
 }
 
 # used for testing only
